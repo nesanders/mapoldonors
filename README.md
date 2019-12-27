@@ -1,4 +1,4 @@
-These scripts automate automate public records data collection and aggregation about political contributions from the Massachusetts Office of Campaign and Political Finance.
+These scripts automate public records data collection and aggregation about political contributions from the Massachusetts Office of Campaign and Political Finance.
 
 The [mapoldonors_getdata.py] script scrapes all individual contributor donor data from the site.  Data downloaded as of May 2019 is recorded in [OCPF_IndividualContributor.zip].
 

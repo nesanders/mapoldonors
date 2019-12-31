@@ -32,5 +32,7 @@ for start_year in range(2000, 2019+1):
         df = pd.read_table(fill_url, delimiter='\t') 
         df.to_csv('OCPF_'+rec_name+'_'+str(start_year)+'_'+str(start_month).zfill(2)+'.csv')
 
+## Compress
+for start_year in range(2000, 2019+1):
+    os.system('zip OCPF_IndividualContributor_'+str(year) +'_csvs.zip OCPF_IndividualContributor_'+str(year)+'_*.csv')
 
-os.system('zip OCPF_IndividualContributor.zip OCPF_*.csv')

@@ -10,7 +10,7 @@ ini_config_file defaults to 'default.ini', which provides an example of the form
 
 The InFilename in the config file defaults to 'OCPF_IndividualContributor_*.zip', the output of the mapoldonors_getdata.py script
 
-This version of the script does a geocoding lookup on Google Maps (you need to supply an API key to authenticate) and adds the zip code and formatted address to each output record.
+This version of the script does a geocoding lookup on Google Maps (you need to supply an API key to authenticate) and adds the zip code and formatted address to each output record. Note - Google provides only a certain number of free geolocation lookups per month, so don't use too many unless you are prepared to pay. Also note that this is quite slow.
 """
 
 import pandas as pd
@@ -26,6 +26,13 @@ from datetime import datetime
 api_key = input("Please input your Google Maps API key:\n")
 
 gmaps = googlemaps.Client(key=api_key)
+
+def safe_geocode(x):
+    try:
+        return gmaps.geocode(x)
+    except:
+        return ''
+
 
 combine_name = lambda x: x['Name'] + (', ' + x['First Name'] if len(x['First Name'])>0 else '')
 
@@ -105,10 +112,10 @@ gn = lambda x: '' if len(x)==0 else x[0]['long_name']
 gc = lambda x, p: gn([g for g in x[0]['address_components'] if g['types']==[p]])
 
 geo_df = form_df.copy()
-form_df['full_geo'] = form_df.apply(lambda x: gmaps.geocode(', '.join(x[['Address', 'City', 'State']])), axis=1)
-form_df['Formatted Address'] = form_df['full_geo'].apply(lambda x: x[0]['formatted_address'])
+form_df['full_geo'] = form_df.apply(lambda x: safe_geocode(', '.join(str(c) for c in x[['Address', 'City', 'State']])), axis=1)
+form_df['Formatted Address'] = form_df['full_geo'].apply(lambda x: x[0]['formatted_address'] if len(x)>0 else '')
 form_df['Zip Code'] = form_df['full_geo'].apply(lambda x: \
-                    gc(x, 'postal_code') + '-'*(len(gc(x, 'postal_code_suffix'))>0) + gc(x, 'postal_code_suffix'))
+                    gc(x, 'postal_code') + '-'*(len(gc(x, 'postal_code_suffix'))>0) + gc(x, 'postal_code_suffix') if len(x)>0 else '')
 
 for g in ['Formatted Address', 'Zip Code']:
     out_df[g] = form_df[g]
